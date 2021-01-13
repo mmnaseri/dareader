@@ -1,12 +1,16 @@
 package com.mmnaseri.utils.dareader;
 
+import javax.annotation.Nonnull;
+
 /** A simple token read from the input. */
 public interface Token {
 
   /** The type of token this token is. */
+  @Nonnull
   TokenType type();
 
   /** The value of this token. */
+  @Nonnull
   String value();
 
   /**

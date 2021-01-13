@@ -9,8 +9,11 @@ import java.util.Set;
  */
 public interface TokenTypeRegistry {
 
-  /** Adds a new token to the registry. */
-  void add(TokenType tokenType);
+  /** Adds a new token and its corresponding reader to the registry. */
+  void add(TokenType tokenType, TokenReader reader);
+
+  /** Returns the token reader for the specified token type. */
+  TokenReader reader(TokenType tokenType);
 
   /** Returns all known token types. */
   Set<TokenType> tokenTypes();

@@ -63,4 +63,7 @@ public interface DocumentReader extends DocumentTokenizer, CharSequence {
 
   /** Rewinds the document to the indicated number of tokens. */
   DocumentReader rewind(int length);
+
+  /** Returns the snapshot manager for this document. */
+  DocumentSnapshotManager snapshot();
 }
