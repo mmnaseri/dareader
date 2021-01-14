@@ -1,6 +1,6 @@
 package com.mmnaseri.utils.dareader.error;
 
-import com.mmnaseri.utils.dareader.DocumentTokenizer;
+import com.mmnaseri.utils.dareader.DocumentAccessor;
 
 /** The base class for the exceptions occurring when reading the contents of a document. */
 public class DocumentReaderException extends RuntimeException {
@@ -8,8 +8,8 @@ public class DocumentReaderException extends RuntimeException {
   private final int line;
   private final int offset;
 
-  public DocumentReaderException(DocumentTokenizer tokenizer, String message) {
-    this(tokenizer.line(), tokenizer.offset(), message);
+  public DocumentReaderException(DocumentAccessor accessor, String message) {
+    this(accessor.line(), accessor.offset(), message);
   }
 
   public DocumentReaderException(int line, int offset, String message) {

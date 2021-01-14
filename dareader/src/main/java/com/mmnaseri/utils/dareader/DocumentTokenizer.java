@@ -1,8 +1,14 @@
 package com.mmnaseri.utils.dareader;
 
+import com.mmnaseri.utils.dareader.impl.SimpleDocumentTokenizer;
 import com.mmnaseri.utils.dareader.token.Token;
+import com.mmnaseri.utils.dareader.token.TokenTypeRegistry;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -13,7 +19,12 @@ import java.util.stream.StreamSupport;
  * backward, so this is not really a suitable candidate for parsing extremely large documents, since
  * any implementation must support arbitrarily moving back and forth in the document.
  */
-public interface DocumentTokenizer extends Iterator<Token> {
+public interface DocumentTokenizer extends DocumentAccessor, Iterator<Token> {
+
+  /** Creates a factory that binds the token types to the presented set. */
+  static DocumentTokenizerFactory with(TokenTypeRegistry registry) {
+    return document -> new SimpleDocumentTokenizer(registry, document);
+  }
 
   /**
    * Indicates if there are more text left in the wrapped document to be read. Note that once this
@@ -26,19 +37,12 @@ public interface DocumentTokenizer extends Iterator<Token> {
 
   /** Reads the next token from the document. */
   @Override
+  @Nullable
   Token next();
 
-  /** Returns the current line number. The first line has a line number of {@code 1}. */
-  int line();
-
-  /**
-   * Returns the current character number in the current line. The first character in the line has a
-   * number of {@code 1}.
-   */
-  int offset();
-
-  /** Returns the number of characters read so far from the beginning of the document. */
-  int cursor();
+  /** Returns a set of tokens that could be read from this point in the document. */
+  @Nonnull
+  Set<Token> candidates();
 
   /**
    * Rewinds the tokenizer by putting the token back at the top of the stack. This means that the

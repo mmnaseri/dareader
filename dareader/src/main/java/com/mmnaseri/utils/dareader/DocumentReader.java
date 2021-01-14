@@ -1,5 +1,7 @@
 package com.mmnaseri.utils.dareader;
 
+import com.mmnaseri.utils.dareader.error.DocumentReaderException;
+import com.mmnaseri.utils.dareader.impl.SimpleDocumentReader;
 import com.mmnaseri.utils.dareader.token.TokenReader;
 
 import javax.annotation.Nonnull;
@@ -13,7 +15,12 @@ import static com.mmnaseri.utils.dareader.error.DocumentReaderExceptions.expectT
  * structured way. The methods on this are meant for the most part to be used by {@link TokenReader}
  * instances which can be used to deliver tokens out of the original document.
  */
-public interface DocumentReader extends DocumentTokenizer, CharSequence {
+public interface DocumentReader extends DocumentAccessor, CharSequence {
+
+  /** Creates a simple document reader that adheres to the contract given here. */
+  static DocumentReader of(String document) {
+    return new SimpleDocumentReader(document);
+  }
 
   /**
    * Reads a single character from the document. Will throw an exception if the document has no more
@@ -65,7 +72,4 @@ public interface DocumentReader extends DocumentTokenizer, CharSequence {
 
   /** Rewinds the document to the indicated number of tokens. */
   DocumentReader rewind(int length);
-
-  /** Returns the snapshot manager for this document. */
-  DocumentSnapshotManager snapshot();
 }
