@@ -1,4 +1,4 @@
-package com.mmnaseri.utils.dareader;
+package com.mmnaseri.utils.dareader.token;
 
 /**
  * A token type which can be used to identify different tokens appearing in a string document.

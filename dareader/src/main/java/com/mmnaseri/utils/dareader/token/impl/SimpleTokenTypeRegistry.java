@@ -1,8 +1,8 @@
-package com.mmnaseri.utils.dareader.impl;
+package com.mmnaseri.utils.dareader.token.impl;
 
-import com.mmnaseri.utils.dareader.TokenReader;
-import com.mmnaseri.utils.dareader.TokenType;
-import com.mmnaseri.utils.dareader.TokenTypeRegistry;
+import com.mmnaseri.utils.dareader.token.TokenReader;
+import com.mmnaseri.utils.dareader.token.TokenType;
+import com.mmnaseri.utils.dareader.token.TokenTypeRegistry;
 
 import java.util.Collections;
 import java.util.HashMap;

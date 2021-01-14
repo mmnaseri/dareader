@@ -1,9 +1,9 @@
-package com.mmnaseri.utils.dareader.impl;
+package com.mmnaseri.utils.dareader.token.impl;
 
-import com.mmnaseri.utils.dareader.ProjectableTokenType;
-import com.mmnaseri.utils.dareader.Token;
-import com.mmnaseri.utils.dareader.TokenReader;
-import com.mmnaseri.utils.dareader.TokenTypeRegistry;
+import com.mmnaseri.utils.dareader.token.ProjectableTokenType;
+import com.mmnaseri.utils.dareader.token.Token;
+import com.mmnaseri.utils.dareader.token.TokenReader;
+import com.mmnaseri.utils.dareader.token.TokenTypeRegistry;
 import com.mmnaseri.utils.dareader.utils.TokenReaders;
 
 import java.util.regex.Pattern;

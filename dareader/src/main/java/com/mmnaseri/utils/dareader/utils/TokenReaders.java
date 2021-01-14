@@ -1,7 +1,7 @@
 package com.mmnaseri.utils.dareader.utils;
 
-import com.mmnaseri.utils.dareader.TokenReader;
-import com.mmnaseri.utils.dareader.TokenType;
+import com.mmnaseri.utils.dareader.token.TokenReader;
+import com.mmnaseri.utils.dareader.token.TokenType;
 
 import java.util.regex.Pattern;
 

@@ -2,10 +2,10 @@ package com.mmnaseri.utils.dareader.utils;
 
 import com.mmnaseri.utils.dareader.DocumentReader;
 import com.mmnaseri.utils.dareader.DocumentSnapshot;
-import com.mmnaseri.utils.dareader.Token;
-import com.mmnaseri.utils.dareader.TokenReader;
-import com.mmnaseri.utils.dareader.TokenType;
-import com.mmnaseri.utils.dareader.impl.SimpleToken;
+import com.mmnaseri.utils.dareader.token.Token;
+import com.mmnaseri.utils.dareader.token.TokenReader;
+import com.mmnaseri.utils.dareader.token.TokenType;
+import com.mmnaseri.utils.dareader.token.impl.SimpleToken;
 
 import javax.annotation.Nullable;
 import java.util.regex.Pattern;

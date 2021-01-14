@@ -1,7 +1,7 @@
-package com.mmnaseri.utils.dareader.impl;
+package com.mmnaseri.utils.dareader.token.impl;
 
-import com.mmnaseri.utils.dareader.Token;
-import com.mmnaseri.utils.dareader.TokenType;
+import com.mmnaseri.utils.dareader.token.Token;
+import com.mmnaseri.utils.dareader.token.TokenType;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;

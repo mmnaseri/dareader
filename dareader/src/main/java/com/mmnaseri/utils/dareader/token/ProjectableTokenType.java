@@ -1,4 +1,4 @@
-package com.mmnaseri.utils.dareader;
+package com.mmnaseri.utils.dareader.token;
 
 /**
  * This interface represents a token type that can be projected back to its original form.
