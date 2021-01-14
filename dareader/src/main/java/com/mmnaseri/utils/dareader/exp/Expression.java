@@ -213,6 +213,17 @@ public class Expression implements Cloneable {
       return this;
     }
 
+    /** Removes the child at the indicated index. */
+    public Builder removeChild(int index) {
+      checkArgument(
+        index >= 0 && index < subject.children.size(),
+        "index",
+        "Index was not between 0 and %d",
+        subject.children.size());
+      subject.children.remove(index);
+      return this;
+    }
+
     @Nonnull
     public List<Token> tokens() {
       return subject.tokens();
@@ -235,6 +246,17 @@ public class Expression implements Cloneable {
     public Builder addToken(@Nonnull Token token) {
       checkNotNull(token, "token cannot be null");
       subject.tokens.add(token);
+      return this;
+    }
+
+    /** Removes the token at the indicated index. */
+    public Builder removeToken(int index) {
+      checkArgument(
+          index >= 0 && index < subject.tokens.size(),
+          "index",
+          "Index was not between 0 and %d",
+          subject.tokens.size());
+      subject.tokens.remove(index);
       return this;
     }
 
