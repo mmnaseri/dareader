@@ -1,6 +1,5 @@
 package com.mmnaseri.utils.dareader;
 
-import com.mmnaseri.utils.dareader.error.DocumentReaderException;
 import com.mmnaseri.utils.dareader.impl.SimpleDocumentReader;
 import com.mmnaseri.utils.dareader.token.TokenReader;
 
