@@ -1,7 +1,6 @@
 package com.mmnaseri.utils.dareader.impl;
 
 import com.mmnaseri.utils.dareader.DocumentReader;
-import com.mmnaseri.utils.dareader.DocumentSnapshot;
 import com.mmnaseri.utils.dareader.DocumentSnapshotManager;
 
 import javax.annotation.Nonnull;
@@ -11,20 +10,28 @@ import java.util.regex.Pattern;
 
 import static com.mmnaseri.utils.dareader.error.DocumentReaderExceptions.expectDistance;
 import static com.mmnaseri.utils.dareader.error.DocumentReaderExceptions.expectMore;
-import static com.mmnaseri.utils.dareader.utils.Precondition.checkState;
+import static com.mmnaseri.utils.dareader.utils.Precondition.checkArgument;
+import static com.mmnaseri.utils.dareader.utils.Precondition.checkNotNull;
 
 /** A simple implementation for {@link DocumentReader}. */
 public class SimpleDocumentReader implements DocumentReader {
 
   private final String document;
-  private final SnapshotManager snapshotManager;
+  private final ReferenceBasedSnapshotManager snapshotManager;
   private int cursor;
   private int line;
   private int offset;
 
   public SimpleDocumentReader(String document) {
     this.document = document;
-    snapshotManager = new SnapshotManager();
+    snapshotManager =
+        new ReferenceBasedSnapshotManager(
+            this,
+            snapshot -> {
+              cursor = snapshot.cursor();
+              line = snapshot.line();
+              offset = snapshot.offset();
+            });
     cursor = 0;
     line = 1;
     offset = 1;
@@ -37,13 +44,15 @@ public class SimpleDocumentReader implements DocumentReader {
     } else {
       offset++;
     }
-    snapshotManager.snapshot = null;
+    snapshotManager.reset();
   }
 
   @Override
   public char read() {
     expectMore(this);
+    // Read one character and move the cursor.
     char character = charAt(cursor++);
+    // Make sure we update the indices correctly.
     move(character);
     return character;
   }
@@ -52,31 +61,45 @@ public class SimpleDocumentReader implements DocumentReader {
   @Override
   public String read(Pattern pattern, int group) {
     expectMore(this);
+    checkNotNull(pattern, "pattern cannot be null");
+    checkArgument(group >= 0, "group", "group must be non-negative.");
     Matcher matcher = pattern.matcher(this);
     if (!matcher.find(cursor) || matcher.start() != cursor) {
       return null;
     }
+    // Move the cursor according to the entire substring that matched the pattern.
     String matched = matcher.group(0);
+    cursor += matched.length();
     for (int i = 0; i < matched.length(); i++) {
       move(matched.charAt(i));
     }
+    // Return only the part of the match the we are interested in.
     return matcher.group(group);
+  }
+
+  @Override
+  public boolean has(Pattern pattern) {
+    checkNotNull(pattern, "pattern cannot be null");
+    return pattern.matcher(document).find(cursor());
   }
 
   @Override
   public DocumentReader rewind(int length) {
     expectDistance(this, length);
-    offset = 0;
+    // Scan the characters backward to make sure we are moving the line counter accordingly.
     for (int i = 0; i < length; i++) {
       cursor--;
       if (charAt(cursor) == '\n') {
         line--;
       }
     }
+    // Seek from the current position to the beginning of the current line to determine the line
+    // offset.
     int seek = cursor;
-    offset = 0;
-    while (seek > 0 && charAt(seek) != '\n') {
+    offset = 1;
+    while (seek > 0 && charAt(seek - 1) != '\n') {
       offset++;
+      seek--;
     }
     if (seek == 0) {
       line = 1;
@@ -128,71 +151,5 @@ public class SimpleDocumentReader implements DocumentReader {
   @Nonnull
   public String toString() {
     return subSequence(0, cursor) + "^" + subSequence(cursor, length());
-  }
-
-  private class SnapshotManager implements DocumentSnapshotManager {
-
-    private Snapshot snapshot;
-
-    @Override
-    public DocumentSnapshot create() {
-      if (snapshot == null) {
-        snapshot = new Snapshot(line(), offset(), cursor(), hasNext());
-      }
-      return snapshot;
-    }
-
-    @Override
-    public DocumentReader restore(DocumentSnapshot snapshot) {
-      checkState(knows(snapshot), "The provided snapshot does not belong to this document.");
-      cursor = snapshot.cursor();
-      line = snapshot.line();
-      offset = snapshot.offset();
-      return SimpleDocumentReader.this;
-    }
-
-    @Override
-    public boolean knows(DocumentSnapshot snapshot) {
-      return snapshot instanceof Snapshot && ((Snapshot) snapshot).belongsTo(this);
-    }
-
-    private class Snapshot implements DocumentSnapshot {
-
-      private final int line;
-      private final int offset;
-      private final int cursor;
-      private final boolean hasNext;
-
-      private Snapshot(int line, int offset, int cursor, boolean hasNext) {
-        this.line = line;
-        this.offset = offset;
-        this.cursor = cursor;
-        this.hasNext = hasNext;
-      }
-
-      @Override
-      public int line() {
-        return line;
-      }
-
-      @Override
-      public int offset() {
-        return offset;
-      }
-
-      @Override
-      public int cursor() {
-        return cursor;
-      }
-
-      @Override
-      public boolean hasNext() {
-        return hasNext;
-      }
-
-      public boolean belongsTo(SnapshotManager manager) {
-        return manager == SnapshotManager.this;
-      }
-    }
   }
 }

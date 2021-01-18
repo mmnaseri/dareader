@@ -11,7 +11,7 @@ public final class DocumentReaderExceptions {
     throw new IllegalAccessException("This type should not be instantiated.");
   }
 
-  public static <E> E expectToken(DocumentAccessor accessor, E value) {
+  public static <E> E expectValue(DocumentAccessor accessor, E value) {
     if (value == null) {
       throw new DocumentReaderException(
           accessor, "Expected to read a value, but nothing was matched.");

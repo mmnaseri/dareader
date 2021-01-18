@@ -212,10 +212,10 @@ public class Expression implements Cloneable {
     /** Removes the child at the indicated index. */
     public Builder removeChild(int index) {
       checkArgument(
-        index >= 0 && index < subject.children.size(),
-        "index",
-        "Index was not between 0 and %d",
-        subject.children.size());
+          index >= 0 && index < subject.children.size(),
+          "index",
+          "Index was not between 0 and %d",
+          subject.children.size());
       subject.children.remove(index);
       return this;
     }

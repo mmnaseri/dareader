@@ -20,19 +20,19 @@ import static java.util.Arrays.stream;
 public enum CommonTokenTypes implements ProjectableTokenType {
   /** Signifies a continuous whitespace region read from the input. */
   WHITESPACE(10_000_001, "\\s+"),
-  /** Signifies a single set of digits with no signage. Example: {@code 123}. */
-  UNSIGNED_INT(10_000_002, "\\d+"),
-  /**
-   * Signifies a single set of digits with a leading signage. Example: {@code -123}, {@code +123}.
-   */
-  SIGNED_INT(10_000_003, "[\\-+]\\d+"),
   /** Signifies two sets of digits separated by a dot with no signage. Example: {@code 123.456}. */
-  UNSIGNED_FLOAT(10_000_004, "\\d+\\.\\d+"),
+  UNSIGNED_FLOAT(10_000_002, "\\d+\\.\\d+"),
   /**
    * Signifies two sets of digits separated by a dot with a leading signage. Example: {@code
    * -123.456}, {@code +123.456}.
    */
-  SIGNED_FLOAT(10_000_005, "[\\-+]\\d+\\.\\d+"),
+  SIGNED_FLOAT(10_000_003, "[\\-+]\\d+\\.\\d+"),
+  /** Signifies a single set of digits with no signage. Example: {@code 123}. */
+  UNSIGNED_INT(10_000_004, "\\d+"),
+  /**
+   * Signifies a single set of digits with a leading signage. Example: {@code -123}, {@code +123}.
+   */
+  SIGNED_INT(10_000_005, "[\\-+]\\d+"),
   /** Signifies a constant value meaningful to the application. Example: {@code true}. */
   CONSTANT(10_000_006, "[a-z]+"),
   /** Signifies an operator read from the input. Example: {@code +}. */

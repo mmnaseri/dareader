@@ -7,7 +7,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.regex.Pattern;
 
-import static com.mmnaseri.utils.dareader.error.DocumentReaderExceptions.expectToken;
+import static com.mmnaseri.utils.dareader.error.DocumentReaderExceptions.expectValue;
 
 /**
  * A document reader will wrap a string document and expose convenience methods to traverse it in a
@@ -54,6 +54,18 @@ public interface DocumentReader extends DocumentAccessor, CharSequence {
   @Nullable
   String read(Pattern pattern, int group);
 
+  /** Alias for {@link #read(Pattern)}. */
+  @Nullable
+  default String read(String pattern) {
+    return read(pattern, 0);
+  }
+
+  /** Alias for {@link #read(Pattern, int)}. */
+  @Nullable
+  default String read(String pattern, int group) {
+    return read(Pattern.compile(pattern, Pattern.DOTALL | Pattern.MULTILINE), group);
+  }
+
   /** Same as {@link #expect(Pattern, int)} but with the group set to {@code 0}. */
   @Nonnull
   default String expect(Pattern pattern) {
@@ -66,7 +78,27 @@ public interface DocumentReader extends DocumentAccessor, CharSequence {
    */
   @Nonnull
   default String expect(Pattern pattern, int group) {
-    return expectToken(this, read(pattern, group));
+    return expectValue(this, read(pattern, group));
+  }
+
+  /** Alias for {@link #expect(Pattern)}. */
+  @Nonnull
+  default String expect(String pattern) {
+    return expect(pattern, 0);
+  }
+
+  /** Alias for {@link #expect(Pattern, int)}. */
+  @Nonnull
+  default String expect(String pattern, int group) {
+    return expect(Pattern.compile(pattern, Pattern.DOTALL | Pattern.MULTILINE), group);
+  }
+
+  /** Determines if the document at this point in the reading process matches the given pattern. */
+  boolean has(Pattern pattern);
+
+  /** Alias for {@link #has(Pattern)}. */
+  default boolean has(String pattern) {
+    return has(Pattern.compile(pattern, Pattern.DOTALL | Pattern.MULTILINE));
   }
 
   /** Rewinds the document to the indicated number of tokens. */

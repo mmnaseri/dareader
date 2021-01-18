@@ -74,5 +74,4 @@ public final class Precondition {
       throw new NullPointerException(String.format(message, arguments));
     }
   }
-
 }

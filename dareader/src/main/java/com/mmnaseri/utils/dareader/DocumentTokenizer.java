@@ -13,12 +13,14 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static com.mmnaseri.utils.dareader.error.DocumentReaderExceptions.expectValue;
+
 /**
  * Wraps a document and tokenizes its contents. The cursor in the document can move forward and
  * backward, so this is not really a suitable candidate for parsing extremely large documents, since
  * any implementation must support arbitrarily moving back and forth in the document.
  */
-public interface DocumentTokenizer extends DocumentAccessor, Iterator<Token> {
+public interface DocumentTokenizer extends DocumentAccessor {
 
   /** Creates a factory that binds the token types to the presented set. */
   static DocumentTokenizerFactory with(TokenTypeRegistry registry) {
@@ -35,7 +37,6 @@ public interface DocumentTokenizer extends DocumentAccessor, Iterator<Token> {
   boolean hasNext();
 
   /** Reads the next token from the document. */
-  @Override
   @Nullable
   Token next();
 
@@ -54,7 +55,19 @@ public interface DocumentTokenizer extends DocumentAccessor, Iterator<Token> {
   /** Returns a spliterator for this document. */
   default Spliterator<Token> spliterator() {
     return Spliterators.spliteratorUnknownSize(
-        /* iterator= */ this, Spliterator.IMMUTABLE | Spliterator.NONNULL);
+        /* iterator= */ new Iterator<Token>() {
+
+          @Override
+          public boolean hasNext() {
+            return DocumentTokenizer.this.hasNext();
+          }
+
+          @Override
+          public Token next() {
+            return expectValue(DocumentTokenizer.this, DocumentTokenizer.this.next());
+          }
+        },
+        Spliterator.IMMUTABLE | Spliterator.NONNULL);
   }
 
   /** Returns a stream from the tokens of this document. */

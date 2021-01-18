@@ -30,4 +30,10 @@ public interface DocumentSnapshot {
         reader.snapshot().knows(this), "This snapshot does not belong to the indicated document");
     return reader.cursor() - cursor();
   }
+
+  /** Determines if the snapshot belongs to the indicated snapshot manager. */
+  boolean belongsTo(DocumentSnapshotManager manager);
+
+  /** Applies this snapshot to the document from which it was derived. */
+  void apply();
 }
