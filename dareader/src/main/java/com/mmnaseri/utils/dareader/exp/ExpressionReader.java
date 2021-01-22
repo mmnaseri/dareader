@@ -89,7 +89,7 @@ public interface ExpressionReader {
       Expression expression = read(reader);
       reader.snapshot().restore(snapshot);
       if (expression == null) {
-        return Expression.newBuilder().type(type).build();
+        return Expression.newBuilder(type).build();
       } else {
         return null;
       }

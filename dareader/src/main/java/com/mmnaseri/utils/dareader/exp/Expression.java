@@ -87,10 +87,17 @@ public class Expression implements Cloneable {
 
   /** Updates the parent of the same instance. */
   public Expression withParent(Expression parent) {
+    checkState(parent() == null, "This node already has a parent: %s", parent());
     return toBuilder().parent(parent).prepare();
   }
 
-  /** Updates the same instance by adding a child to it. */
+  /**
+   * Updates the same instance by adding a child to it.
+   *
+   * <p>The distinction between this method and using {@code toBuilder().addChild().build()} is that
+   * this method adds a child to the same node, whereas by calling {@link Builder#build()} you get a
+   * new instance.
+   */
   public Expression withChild(Expression child) {
     return toBuilder().addChild(checkNotNull(child, "child cannot be null")).prepare();
   }
@@ -136,20 +143,19 @@ public class Expression implements Cloneable {
         "Expression'{'type={0},children={1},tokens={2}'}'", type, children, tokens);
   }
 
-  /** Creates a new expression builder. */
-  public static Builder newBuilder() {
-    return new Builder(new Expression());
+  /** Creates a new expression builder and sets the type. */
+  public static Builder newBuilder(ExpressionType type) {
+    return new Builder(new Expression()).type(type);
   }
 
   public static Expression compose(Iterable<Expression> expressions) {
-    return Expression.newBuilder()
-        .type(ExpressionType.COMPOSITE)
+    return Expression.newBuilder(ExpressionType.COMPOSITE)
         .addAllChildren(stream(expressions.spliterator(), /* parallel= */ false).collect(toList()))
         .build();
   }
 
   public static Expression optional(Expression other) {
-    Builder builder = Expression.newBuilder().type(ExpressionType.OPTIONAL);
+    Builder builder = Expression.newBuilder(ExpressionType.OPTIONAL);
     if (other != null) {
       builder.addChild(other);
     }
@@ -157,7 +163,7 @@ public class Expression implements Cloneable {
   }
 
   public static Expression empty() {
-    return Expression.newBuilder().type(ExpressionType.EMPTY).build();
+    return Expression.newBuilder(ExpressionType.EMPTY).build();
   }
 
   /** Builder for {@link Expression}. */
@@ -167,8 +173,8 @@ public class Expression implements Cloneable {
 
     public Builder(Expression subject) {
       this.subject = subject;
-      this.subject.children = new ArrayList<>();
-      this.subject.tokens = new ArrayList<>();
+      this.subject.children = subject.children == null ? new ArrayList<>() : subject.children;
+      this.subject.tokens = subject.tokens == null ? new ArrayList<>() : subject.tokens;
     }
 
     @Nonnull
@@ -205,7 +211,7 @@ public class Expression implements Cloneable {
     public Builder addChild(@Nonnull Expression child) {
       checkNotNull(child, "child cannot be null");
       checkState(child.isRoot(), "child cannot be a child of another node");
-      subject.children.add(child.toBuilder().parent(subject).prepare());
+      subject.children.add(child.withParent(subject));
       return this;
     }
 
@@ -265,17 +271,6 @@ public class Expression implements Cloneable {
     public Builder parent(@Nullable Expression parent) {
       subject.parent = parent;
       return this;
-    }
-
-    /** Updates all the properties of this node to match that of the indicated expression. */
-    public Builder copyFrom(Expression expression) {
-      checkNotNull(expression, "Expression cannot be null");
-      return new Builder(new Expression())
-          .type(expression.type())
-          .parent(expression.parent())
-          .children(
-              expression.children().stream().map(child -> child.withParent(null)).collect(toList()))
-          .tokens(expression.tokens());
     }
 
     /** Returns the malleable instance used by this builder. */
