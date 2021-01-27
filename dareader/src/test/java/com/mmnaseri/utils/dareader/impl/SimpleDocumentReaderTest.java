@@ -6,6 +6,8 @@ import com.mmnaseri.utils.dareader.error.DocumentReaderException;
 import org.testng.annotations.Test;
 import org.w3c.dom.ranges.DocumentRange;
 
+import java.util.regex.Pattern;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -42,7 +44,7 @@ public class SimpleDocumentReaderTest {
   public void readAPattern() {
     DocumentReader reader = DocumentReader.of("a1\na2");
 
-    String read = reader.read("[a-z]([0-9]+)\\s");
+    String read = reader.read(Pattern.compile("[a-z]([0-9]+)\\s"));
 
     assertThat(read, is(notNullValue()));
     assertThat(read, is("a1\n"));
@@ -62,7 +64,7 @@ public class SimpleDocumentReaderTest {
   public void expectAPattern() {
     DocumentReader reader = DocumentReader.of("a1\na2");
 
-    String read = reader.expect("[a-z]([0-9]+)\\s");
+    String read = reader.expect(Pattern.compile("[a-z]([0-9]+)\\s"));
 
     assertThat(read, is(notNullValue()));
     assertThat(read, is("a1\n"));

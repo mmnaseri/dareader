@@ -6,13 +6,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import static com.mmnaseri.utils.dareader.utils.Precondition.checkArgument;
 import static com.mmnaseri.utils.dareader.utils.Precondition.checkNotNull;
-import static com.mmnaseri.utils.dareader.utils.Precondition.checkState;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
 
@@ -87,7 +87,6 @@ public class Expression implements Cloneable {
 
   /** Updates the parent of the same instance. */
   public Expression withParent(Expression parent) {
-    checkState(parent() == null, "This node already has a parent: %s", parent());
     return toBuilder().parent(parent).prepare();
   }
 
@@ -126,10 +125,7 @@ public class Expression implements Cloneable {
       return false;
     }
     Expression that = (Expression) o;
-    return type.equals(that.type)
-        && children.equals(that.children)
-        && tokens.equals(that.tokens)
-        && Objects.equals(parent, that.parent);
+    return type.equals(that.type) && children.equals(that.children) && tokens.equals(that.tokens);
   }
 
   @Override
@@ -152,6 +148,14 @@ public class Expression implements Cloneable {
     return Expression.newBuilder(ExpressionType.COMPOSITE)
         .addAllChildren(stream(expressions.spliterator(), /* parallel= */ false).collect(toList()))
         .build();
+  }
+
+  public static Expression compose(Expression... expressions) {
+    return compose(Arrays.asList(expressions));
+  }
+
+  public static Expression optional() {
+    return optional(null);
   }
 
   public static Expression optional(Expression other) {
@@ -201,7 +205,7 @@ public class Expression implements Cloneable {
     }
 
     /** Adds the indicated children to this node. */
-    private Builder addAllChildren(@Nonnull List<Expression> children) {
+    public Builder addAllChildren(@Nonnull List<Expression> children) {
       checkNotNull(children, "children cannot be null");
       children.forEach(this::addChild);
       return this;
@@ -210,7 +214,6 @@ public class Expression implements Cloneable {
     /** Adds a child to the node and updates the child to recognize this node as its parent. */
     public Builder addChild(@Nonnull Expression child) {
       checkNotNull(child, "child cannot be null");
-      checkState(child.isRoot(), "child cannot be a child of another node");
       subject.children.add(child.withParent(subject));
       return this;
     }
@@ -238,7 +241,7 @@ public class Expression implements Cloneable {
     }
 
     /** Appends the indicated tokens to the list of tokens for this node. */
-    private Builder addAllTokens(@Nonnull List<Token> tokens) {
+    public Builder addAllTokens(@Nonnull List<Token> tokens) {
       checkNotNull(tokens, "tokens cannot be null");
       tokens.forEach(this::addToken);
       return this;

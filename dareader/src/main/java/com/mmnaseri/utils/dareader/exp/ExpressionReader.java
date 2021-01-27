@@ -1,7 +1,7 @@
 package com.mmnaseri.utils.dareader.exp;
 
-import com.mmnaseri.utils.dareader.DocumentReader;
 import com.mmnaseri.utils.dareader.DocumentSnapshot;
+import com.mmnaseri.utils.dareader.DocumentTokenizer;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -19,27 +19,27 @@ import static java.util.stream.Collectors.toList;
 public interface ExpressionReader {
 
   /**
-   * Reads the expression from the document or returns {@code null} if the reader doesn't yield a
+   * Reads the expression from the document or returns {@code null} if the tokenizer doesn't yield a
    * valid expression.
    */
   @Nullable
-  Expression read(DocumentReader reader);
+  Expression read(DocumentTokenizer tokenizer);
 
   /**
    * Returns a reader that first attempts to read the current definition. If not, it attempts to
    * read the other definition. If none matches, the document is reset.
    */
   default ExpressionReader or(ExpressionReader other) {
-    return reader -> {
-      DocumentSnapshot snapshot = reader.snapshot().create();
-      Expression expression = read(reader);
+    return tokenizer -> {
+      DocumentSnapshot snapshot = tokenizer.snapshot().create();
+      Expression expression = read(tokenizer);
       if (expression != null) {
         return expression;
       }
-      reader.snapshot().restore(snapshot);
-      expression = other.read(reader);
+      tokenizer.snapshot().restore(snapshot);
+      expression = other.read(tokenizer);
       if (expression == null) {
-        reader.snapshot().restore(snapshot);
+        tokenizer.snapshot().restore(snapshot);
         return null;
       }
       return expression;
@@ -81,13 +81,23 @@ public interface ExpressionReader {
 
   /**
    * Returns a reader that succeeds if this reader fails. If that reader succeeds, an empty
+   * expression with type {@link ExpressionType#EMPTY} will be created.
+   *
+   * @see #negate(ExpressionType)
+   */
+  default ExpressionReader negate() {
+    return negate(ExpressionType.EMPTY);
+  }
+
+  /**
+   * Returns a reader that succeeds if this reader fails. If that reader succeeds, an empty
    * expression with the indicated type will be created.
    */
   default ExpressionReader negate(ExpressionType type) {
-    return reader -> {
-      DocumentSnapshot snapshot = reader.snapshot().create();
-      Expression expression = read(reader);
-      reader.snapshot().restore(snapshot);
+    return tokenizer -> {
+      DocumentSnapshot snapshot = tokenizer.snapshot().create();
+      Expression expression = read(tokenizer);
+      tokenizer.snapshot().restore(snapshot);
       if (expression == null) {
         return Expression.newBuilder(type).build();
       } else {
@@ -101,7 +111,7 @@ public interface ExpressionReader {
    * optional will have a single child that is the matching expression.
    */
   default ExpressionReader optional() {
-    return reader -> Expression.optional(read(reader));
+    return tokenizer -> Expression.optional(read(tokenizer));
   }
 
   /**
@@ -109,13 +119,13 @@ public interface ExpressionReader {
    * the indicated number of times.
    */
   default ExpressionReader times(int exactly) {
-    return reader -> {
-      DocumentSnapshot snapshot = reader.snapshot().create();
+    return tokenizer -> {
+      DocumentSnapshot snapshot = tokenizer.snapshot().create();
       List<Expression> list = new ArrayList<>();
       for (int i = 0; i < exactly; i++) {
-        Expression expression = read(reader);
+        Expression expression = read(tokenizer);
         if (expression == null) {
-          reader.snapshot().restore(snapshot);
+          tokenizer.snapshot().restore(snapshot);
           return null;
         }
         list.add(expression);
@@ -129,13 +139,13 @@ public interface ExpressionReader {
    * found, returns an empty expression.
    */
   default ExpressionReader repeated() {
-    return reader -> {
+    return tokenizer -> {
       List<Expression> list = new ArrayList<>();
       while (true) {
-        DocumentSnapshot snapshot = reader.snapshot().create();
-        Expression expression = read(reader);
+        DocumentSnapshot snapshot = tokenizer.snapshot().create();
+        Expression expression = read(tokenizer);
         if (expression == null) {
-          reader.snapshot().restore(snapshot);
+          tokenizer.snapshot().restore(snapshot);
           break;
         }
         list.add(expression);
@@ -168,11 +178,11 @@ public interface ExpressionReader {
    * callback on the expression.
    */
   default ExpressionReader then(Function<Expression, Expression> transformer) {
-    return reader -> {
-      DocumentSnapshot snapshot = reader.snapshot().create();
-      Expression expression = read(reader);
+    return tokenizer -> {
+      DocumentSnapshot snapshot = tokenizer.snapshot().create();
+      Expression expression = read(tokenizer);
       if (expression == null) {
-        reader.snapshot().restore(snapshot);
+        tokenizer.snapshot().restore(snapshot);
         return null;
       }
       return transformer.apply(expression);

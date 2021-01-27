@@ -27,7 +27,7 @@ public class SimpleTokenTypeRegistry implements TokenTypeRegistry {
   }
 
   @Override
-  public void add(TokenType tokenType, TokenReader reader) {
+  public TokenTypeRegistry add(TokenType tokenType, TokenReader reader) {
     checkNotNull(tokenType, "Token type cannot be null");
     checkState(
         !types.containsKey(tokenType.tag()),
@@ -35,6 +35,7 @@ public class SimpleTokenTypeRegistry implements TokenTypeRegistry {
         types.get(tokenType.tag()),
         tokenType.tag());
     types.put(tokenType.tag(), new TokenDefinition(tokenType, reader));
+    return this;
   }
 
   @Override
